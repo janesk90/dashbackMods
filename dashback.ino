@@ -70,6 +70,9 @@ void loop()
         if(gcControllerReport.xAxis != lastXAxis) {
             if(millis() > lastXAxisChange + PODE_TIMER) { // if it's been a few milliseconds since the x axis started to change
                 d.report.xAxis = gcControllerReport.xAxis; // imitate the delay and sharp electrical value change of PODE
+                // lastXAxis should only change if the controller's actual x axis value is different after the PODE delay period
+                lastXAxis = d.report.xAxis; // update the last attempted-reported x axis value to this report's x axis value
+                lastXAxisChange = millis(); // update the last time the last x axis value changed, reseting the PODE window
             } 
             else {
                 d.report.xAxis = lastXAxis; // otherwise, we're still in window, so keep sending the last reported x axis value
@@ -77,12 +80,6 @@ void loop()
         }
         else { // if something I didn't think to account for happens or you're just Star Fucking Platinum
             d.report.xAxis = gcControllerReport.xAxis;
-        }
-
-        if(lastXAxis != d.report.xAxis) { // if the last x axis value we tried to report doesn't equal this report's x axis value
-            // lastXAxis should only change if the controller's actual x axis value is different after the PODE delay period
-            lastXAxis = d.report.xAxis; // update the last attempted-reported x axis value to this report's x axis value
-            lastXAxisChange = millis(); // update the last time the last x axis value changed, reseting the PODE window
         }
     }
     gcConsole.write(d); // we're gucci if we continuously fail to write?
